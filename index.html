@@ -21,19 +21,24 @@
         const limit = 5000;
         let myWorker, history_value;
 
-        async function main() {
-            // ServiceWorkerの登録
-            await navigator.serviceWorker.register('service.js');
+        window.addEventListener("load", async () => {
 
-            const ctrl = navigator.serviceWorker.controller;
-            ctrl.postMessage({
+            const controller = navigator.serviceWorker.controller;
+            if (!controller) {
+                console.log('no controller.');
+                console.log('registering...');
+                await navigator.serviceWorker.register('service.js');
+                console.log('registered. waiting for activation.');
+                await navigator.serviceWorker.ready;
+            }
+            // navigator.serviceWorker.addEventListener('message', e => {
+            //     console.log(`received: ${e.data}`);
+            // });
+            navigator.serviceWorker.controller.postMessage({
                 limit: limit,
                 proc: "start"
             });
-        }
-        main();
 
-        window.addEventListener("load", () => {
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
             const left_value = document.getElementById('left_value');
