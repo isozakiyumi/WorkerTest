@@ -18,77 +18,100 @@
     <link rel="manifest" href="manifest.json">
 
     <script type="text/javascript">
-        const limit = 5000;
-        let myWorker, history_value;
+        const limit = 5;
+        let myWorker;
+        let history_value;
 
+        // // web worker
+        // window.addEventListener("load", async () => {
+        //     const limit_value = document.getElementById('limit_value');
+        //     limit_value.innerText = limit + "";
+        //     const left_value = document.getElementById('left_value');
+        //     left_value.innerText = limit + "";
+        //     history_value = document.getElementById('history_value');
+        //
+        //     // Workerの作成
+        //     myWorker = new Worker("worker.js");
+        //
+        //     // Workerへメッセージを送信
+        //     myWorker.postMessage({
+        //         limit: limit,
+        //         proc: "start"
+        //     });
+        //     history_value.innerHTML = "start<br>";
+        //
+        //     // Workerからのメッセージを受信
+        //     myWorker.addEventListener("message", (e) => {
+        //         const param = e.data;    // Workerからの引数を受け取る
+        //         left_value.innerText = param;
+        //         history_value.innerHTML += "left = " + param + "<br>";
+        //         if (param <= 0) {
+        //             const limit_message = document.getElementById('limit_message');
+        //             limit_message.style.display = "block";
+        //         }
+        //     });
+        // });
+
+        // service worker
         window.addEventListener("load", async () => {
-
-            const controller = navigator.serviceWorker.controller;
-            if (!controller) {
-                console.log('no controller.');
-                console.log('registering...');
-                await navigator.serviceWorker.register('service.js');
-                console.log('registered. waiting for activation.');
-                await navigator.serviceWorker.ready;
-                location.reload();
-            }
-            controller.postMessage({
-                limit: limit,
-                proc: "start"
-            });
-
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
             const left_value = document.getElementById('left_value');
             left_value.innerText = limit + "";
             history_value = document.getElementById('history_value');
 
-            // Workerの作成
-            myWorker = new Worker("worker.js");
+            try {
+                myWorker = navigator.serviceWorker.controller;
+                if (!myWorker) {
+                    console.log('no controller.');
+                    console.log('registering...');
+                    await navigator.serviceWorker.register('service.js');
+                    console.log('registered. waiting for activation.');
+                    await navigator.serviceWorker.ready;
+                    location.reload();
+                }
+                let pref_left = localStorage.getItem("left_time");
+                if (pref_left && pref_left > 0) {
+                    left = pref_left;
+                } else {
+                    left = limit;
+                }
+                localStorage.setItem("left_time", left);
+                myWorker.postMessage({
+                    limit: limit,
+                    left: left,
+                    proc: "start"
+                });
+            } catch (e) {
+                console.log(e);
+            }
 
-            // Workerへメッセージを送信
-            myWorker.postMessage({
-                limit: limit,
-                proc: "start"
-            });
             history_value.innerHTML = "start<br>";
 
             // Workerからのメッセージを受信
-            myWorker.addEventListener("message", (e) => {
+            navigator.serviceWorker.addEventListener("message", (e) => {
                 const param = e.data;    // Workerからの引数を受け取る
-                left_value.innerText = param;
-                history_value.innerHTML += "left = " + param + "<br>";
-                if (param <= 0) {
-                    const limit_message = document.getElementById('limit_message');
-                    limit_message.style.display = "block";
+                const left = param.left;
+                localStorage.setItem("left_time", left);
+                left_value.innerText = left;
+                history_value.innerHTML += "left = " + left + "<br>";
+                if (left <= 0) {
+                    document.getElementById('limit_message').style.display = "block";
                 }
             });
-
         });
-        window.addEventListener("blue", () => {
-            // myWorker.postMessage({
-            //     proc: "pause"
-            // });
-            history_value.innerHTML += "on blue";
+
+        window.addEventListener("blur", () => {
+            // pause();
+            history_value.innerHTML += "on blur<br>";
         });
         window.addEventListener("focus", () => {
-            // myWorker.postMessage({
-            //     proc: "resume"
-            // });
-            history_value.innerHTML += "on focus";
+            // resume();
+            history_value.innerHTML += "on focus<br>";
         });
-        //
-        // window.addEventListener('DOMContentLoaded', () => {
-        //     document.addEventListener("visibilityChange", () => {
-        //         myWorker.postMessage({
-        //             proc: "pause"
-        //         });
-        //         history_value.innerHTML += "on visibilityChange: pause<br>";
-        //     });
-        // });
 
         // hidden プロパティおよび可視性の変更イベントの名前を設定
-        var hidden, visibilityChange;
+        let hidden, visibilityChange;
         if (typeof document.hidden !== "undefined") { // Opera 12.10 や Firefox 18 以降でサポート
             hidden = "hidden";
             visibilityChange = "visibilitychange";
@@ -104,14 +127,10 @@
         // ページが表示されたとき、再生する。
         function handleVisibilityChange() {
             if (document[hidden]) {
-                myWorker.postMessage({
-                    proc: "pause"
-                });
+                pause();
                 history_value.innerHTML += "on visibilityChange: pause<br>";
             } else {
-                myWorker.postMessage({
-                    proc: "resume"
-                });
+                resume();
                 history_value.innerHTML += "on visibilityChange: resume<br>";
             }
         }
@@ -122,6 +141,26 @@
         } else {
             // Page Visibility の変更を扱う
             document.addEventListener(visibilityChange, handleVisibilityChange, false);
+        }
+
+        function pause() {
+            myWorker.postMessage({proc: "pause"});
+            history_value.innerHTML += "pause left_time: " + left + "<br>";
+        }
+
+        function resume() {
+            const left = localStorage.getItem("left_time");
+            myWorker.postMessage({proc: "resume", limit: limit, left: left});
+            history_value.innerHTML += "resume left_time: " + left + "<br>";
+        }
+
+        function restart() {
+            document.getElementById('limit_message').style.display = "none";
+
+            const left = limit;
+            localStorage.setItem("left_time", left);
+            myWorker.postMessage({proc: "restart", limit: limit, left: left});
+            history_value.innerHTML += "restart left_time: " + left + "<br>";
         }
 
     </script>
@@ -139,7 +178,10 @@
 <hr>
 <p>Limit：<span id="limit_value"></span></p>
 <p>Left：<span id="left_value"></span></p>
-<p id="limit_message" style="display: none">Time over!!</p>
+<p id="limit_message" style="display: none">
+    <span>Time over!!</span><br>
+    <input type="button" value="Restart" onclick="restart()">
+</p>
 <hr>
 <p>History<br><span id="history_value"></span></p>
 </body>
