@@ -152,6 +152,9 @@
             const left = localStorage.getItem("left_time");
             myWorker.postMessage({proc: "resume", limit: limit, left: left});
             history_value.innerHTML += "resume left_time: " + left + "<br>";
+            if (left <= 0) {
+                document.getElementById('limit_message').style.display = "block";
+            }
         }
 
         function restart() {
