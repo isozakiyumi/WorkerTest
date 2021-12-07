@@ -23,30 +23,19 @@
 
         window.addEventListener("load", async () => {
 
-            let controller = navigator.serviceWorker.controller;
+            const controller = navigator.serviceWorker.controller;
             if (!controller) {
-                // console.log('no controller.');
-                // console.log('registering...');
-                // await navigator.serviceWorker.register('service.js');
-                // console.log('registered. waiting for activation.');
-                // await navigator.serviceWorker.ready;
-
-                await navigator.serviceWorker.register('./sw.js');
-
-                controller = navigator.serviceWorker.controller;
-
+                console.log('no controller.');
+                console.log('registering...');
+                await navigator.serviceWorker.register('service.js');
+                console.log('registered. waiting for activation.');
+                await navigator.serviceWorker.ready;
+                location.reload();
             }
-            // navigator.serviceWorker.addEventListener('message', e => {
-            //     console.log(`received: ${e.data}`);
-            // });
             controller.postMessage({
                 limit: limit,
                 proc: "start"
             });
-            // navigator.serviceWorker.controller.postMessage({
-            //     limit: limit,
-            //     proc: "start"
-            // });
 
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
