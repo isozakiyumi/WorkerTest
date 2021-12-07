@@ -1,5 +1,5 @@
 {
-  "name":"Worker Test",
+  "name":"WorkerTest",
   "short_name":"WorkerTest",
   "icons": [{
     "src": "https://placehold.jp/3d4070/ffffff/192x192.png?text=Worker%20%0ATest",
@@ -10,7 +10,7 @@
     "sizes":"512x512",
     "type": "image/png"
   }],
-  "start_url": "/index.html?utm_source=homescreen",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF"
