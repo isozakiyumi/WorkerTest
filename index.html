@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebWorkerTest</title>
+    <!-- アドレスバー等のブラウザのUIを非表示 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- default（Safariと同じ） / black（黒） / black-translucent（ステータスバーをコンテンツに含める） -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- ホーム画面に表示されるアプリ名 -->
+    <meta name="apple-mobile-web-app-title" content="Worker Test">
+    <!-- ホーム画面に表示されるアプリアイコン -->
+    <link rel="apple-touch-icon" href="https://placehold.jp/3d4070/ffffff/152x152.png?text=Worker%20%0ATest">
+
+    <!-- ウェブアプリマニフェストの読み込み -->
+    <link rel="manifest" href="manifest.json">
+    <!-- ServiceWorkerの登録 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service.js')
+                .then((reg) => {
+                    console.log('Service worker registered.', reg);
+                });
+        }
+    </script>
+
+    <script type="text/javascript">
+        const limit = 5000;
+        let myWorker, history_value;
+        window.addEventListener("load", () => {
+            const limit_value = document.getElementById('limit_value');
+            limit_value.innerText = limit + "";
+            const left_value = document.getElementById('left_value');
+            left_value.innerText = limit + "";
+            history_value = document.getElementById('history_value');
+
+            // Workerの作成
+            myWorker = new Worker("worker.js");
+
+            // Workerへメッセージを送信
+            myWorker.postMessage({
+                limit: limit,
+                proc: "start"
+            });
+            history_value.innerHTML = "start<br>";
+
+            // Workerからのメッセージを受信
+            myWorker.addEventListener("message", (e) => {
+                const param = e.data;    // Workerからの引数を受け取る
+                left_value.innerText = param;
+                history_value.innerHTML += "left = " + param + "<br>";
+                if (param <= 0) {
+                    const limit_message = document.getElementById('limit_message');
+                    limit_message.style.display = "block";
+                    if (confirm("閉じますか？")) {
+                        // window.close();
+                        window.open('about:blank','_self').close();
+                    }
+                }
+            });
+
+        });
+        window.addEventListener("blue", () => {
+            // myWorker.postMessage({
+            //     proc: "pause"
+            // });
+            history_value.innerHTML += "on blue";
+        });
+        window.addEventListener("focus", () => {
+            // myWorker.postMessage({
+            //     proc: "resume"
+            // });
+            history_value.innerHTML += "on focus";
+        });
+        //
+        // window.addEventListener('DOMContentLoaded', () => {
+        //     document.addEventListener("visibilityChange", () => {
+        //         myWorker.postMessage({
+        //             proc: "pause"
+        //         });
+        //         history_value.innerHTML += "on visibilityChange: pause<br>";
+        //     });
+        // });
+
+        // hidden プロパティおよび可視性の変更イベントの名前を設定
+        var hidden, visibilityChange;
+        if (typeof document.hidden !== "undefined") { // Opera 12.10 や Firefox 18 以降でサポート
+            hidden = "hidden";
+            visibilityChange = "visibilitychange";
+        } else if (typeof document.msHidden !== "undefined") {
+            hidden = "msHidden";
+            visibilityChange = "msvisibilitychange";
+        } else if (typeof document.webkitHidden !== "undefined") {
+            hidden = "webkitHidden";
+            visibilityChange = "webkitvisibilitychange";
+        }
+
+        // ページが隠れたとき、再生を一時停止する。
+        // ページが表示されたとき、再生する。
+        function handleVisibilityChange() {
+            if (document[hidden]) {
+                myWorker.postMessage({
+                    proc: "pause"
+                });
+                history_value.innerHTML += "on visibilityChange: pause<br>";
+            } else {
+                myWorker.postMessage({
+                    proc: "resume"
+                });
+                history_value.innerHTML += "on visibilityChange: resume<br>";
+            }
+        }
+
+        // ブラウザーが addEventListener または をサポートしない場合に警告
+        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+            console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+        } else {
+            // Page Visibility の変更を扱う
+            document.addEventListener(visibilityChange, handleVisibilityChange, false);
+        }
+        
+    </script>
+    <style type="text/css">
+        #limit_message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<p>Limit：<span id="limit_value"></span></p>
+<p>Left：<span id="left_value"></span></p>
+<p id="limit_message" style="display: none">Time over!!</p>
+<hr>
+<p>History<br><span id="history_value"></span></p>
+</body>
+</html>
