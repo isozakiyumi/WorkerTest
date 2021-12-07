@@ -22,37 +22,7 @@
         let myWorker;
         let history_value;
 
-        // // web worker
-        // window.addEventListener("load", async () => {
-        //     const limit_value = document.getElementById('limit_value');
-        //     limit_value.innerText = limit + "";
-        //     const left_value = document.getElementById('left_value');
-        //     left_value.innerText = limit + "";
-        //     history_value = document.getElementById('history_value');
-        //
-        //     // Workerの作成
-        //     myWorker = new Worker("worker.js");
-        //
-        //     // Workerへメッセージを送信
-        //     myWorker.postMessage({
-        //         limit: limit,
-        //         proc: "start"
-        //     });
-        //     history_value.innerHTML = "start<br>";
-        //
-        //     // Workerからのメッセージを受信
-        //     myWorker.addEventListener("message", (e) => {
-        //         const param = e.data;    // Workerからの引数を受け取る
-        //         left_value.innerText = param;
-        //         history_value.innerHTML += "left = " + param + "<br>";
-        //         if (param <= 0) {
-        //             const limit_message = document.getElementById('limit_message');
-        //             limit_message.style.display = "block";
-        //         }
-        //     });
-        // });
-
-        // service worker
+        // web worker
         window.addEventListener("load", async () => {
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
@@ -60,36 +30,26 @@
             left_value.innerText = limit + "";
             history_value = document.getElementById('history_value');
 
-            try {
-                myWorker = navigator.serviceWorker.controller;
-                if (!myWorker) {
-                    console.log('no controller.');
-                    console.log('registering...');
-                    await navigator.serviceWorker.register('service.js');
-                    console.log('registered. waiting for activation.');
-                    await navigator.serviceWorker.ready;
-                    location.reload();
-                }
-                let pref_left = localStorage.getItem("left_time");
-                if (pref_left && pref_left > 0) {
-                    left = pref_left;
-                } else {
-                    left = limit;
-                }
-                localStorage.setItem("left_time", left);
-                myWorker.postMessage({
-                    limit: limit,
-                    left: left,
-                    proc: "start"
-                });
-            } catch (e) {
-                console.log(e);
-            }
+            // Workerの作成
+            myWorker = new Worker("worker.js");
 
+            // Workerへメッセージを送信
+            let pref_left = localStorage.getItem("left_time");
+            if (pref_left && pref_left > 0) {
+                left = pref_left;
+            } else {
+                left = limit;
+            }
+            localStorage.setItem("left_time", left);
+            myWorker.postMessage({
+                limit: limit,
+                left: left,
+                proc: "start"
+            });
             history_value.innerHTML = "start<br>";
 
             // Workerからのメッセージを受信
-            navigator.serviceWorker.addEventListener("message", (e) => {
+            myWorker.addEventListener("message", (e) => {
                 const param = e.data;    // Workerからの引数を受け取る
                 const left = param.left;
                 localStorage.setItem("left_time", left);
@@ -100,6 +60,55 @@
                 }
             });
         });
+
+        // service worker
+        // window.addEventListener("load", async () => {
+        //     const limit_value = document.getElementById('limit_value');
+        //     limit_value.innerText = limit + "";
+        //     const left_value = document.getElementById('left_value');
+        //     left_value.innerText = limit + "";
+        //     history_value = document.getElementById('history_value');
+        //
+        //     try {
+        //         myWorker = navigator.serviceWorker.controller;
+        //         if (!myWorker) {
+        //             console.log('no controller.');
+        //             console.log('registering...');
+        //             await navigator.serviceWorker.register('service.js');
+        //             console.log('registered. waiting for activation.');
+        //             await navigator.serviceWorker.ready;
+        //             location.reload();
+        //         }
+        //         let pref_left = localStorage.getItem("left_time");
+        //         if (pref_left && pref_left > 0) {
+        //             left = pref_left;
+        //         } else {
+        //             left = limit;
+        //         }
+        //         localStorage.setItem("left_time", left);
+        //         myWorker.postMessage({
+        //             limit: limit,
+        //             left: left,
+        //             proc: "start"
+        //         });
+        //     } catch (e) {
+        //         console.log(e);
+        //     }
+        //
+        //     history_value.innerHTML = "start<br>";
+        //
+        //     // Workerからのメッセージを受信
+        //     navigator.serviceWorker.addEventListener("message", (e) => {
+        //         const param = e.data;    // Workerからの引数を受け取る
+        //         const left = param.left;
+        //         localStorage.setItem("left_time", left);
+        //         left_value.innerText = left;
+        //         history_value.innerHTML += "left = " + left + "<br>";
+        //         if (left <= 0) {
+        //             document.getElementById('limit_message').style.display = "block";
+        //         }
+        //     });
+        // });
 
         // window.addEventListener("blur", () => {
         //     // pause();
@@ -175,7 +184,8 @@
 </head>
 <body>
 <input type="button" value="閉じる(window.close())" onclick="window.close()"><br>
-<input type="button" value="閉じる(window.open('about:blank','_self').close();)" onclick="window.open('about:blank','_self').close();">
+<input type="button" value="閉じる(window.open('about:blank','_self').close();)"
+       onclick="window.open('about:blank','_self').close();">
 <hr>
 <a href="./index.html" target="_blank">target=_blank でこのページを開く</a>
 <hr>
