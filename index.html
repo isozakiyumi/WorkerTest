@@ -16,8 +16,12 @@
 
     <!-- ウェブアプリマニフェストの読み込み -->
     <link rel="manifest" href="manifest.json">
-    <!-- ServiceWorkerの登録 -->
-    <script>
+
+    <script type="text/javascript">
+        const limit = 5000;
+        let myWorker, history_value;
+
+        // ServiceWorkerの登録
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service.js')
                 .then((reg) => {
@@ -32,11 +36,6 @@
 
         }
 
-    </script>
-
-    <script type="text/javascript">
-        const limit = 5000;
-        let myWorker, history_value;
         window.addEventListener("load", () => {
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
