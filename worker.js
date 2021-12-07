@@ -24,6 +24,7 @@ self.addEventListener("message", (e) => {
 });
 
 self.countdown = () => {
+    // 簡易カウントダウン。ちゃんとやるなら時間計測
     left -= 1000;
     console.log("left=" + left);
     if (left <= 0) {

@@ -21,20 +21,17 @@
         const limit = 5000;
         let myWorker, history_value;
 
-        // ServiceWorkerの登録
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service.js')
-                .then((reg) => {
-                    console.log('Service worker registered.', reg);
-                });
+        async function main() {
+            // ServiceWorkerの登録
+            await navigator.serviceWorker.register('service.js');
 
             const ctrl = navigator.serviceWorker.controller;
             ctrl.postMessage({
                 limit: limit,
                 proc: "start"
             });
-
         }
+        main();
 
         window.addEventListener("load", () => {
             const limit_value = document.getElementById('limit_value');
