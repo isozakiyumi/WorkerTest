@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>WebWorkerTest</title>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
     <!-- アドレスバー等のブラウザのUIを非表示 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- default（Safariと同じ） / black（黒） / black-translucent（ステータスバーをコンテンツに含める） -->
@@ -21,7 +23,15 @@
                 .then((reg) => {
                     console.log('Service worker registered.', reg);
                 });
+
+            const ctrl = navigator.serviceWorker.controller;
+            ctrl.postMessage({
+                limit: limit,
+                proc: "start"
+            });
+
         }
+
     </script>
 
     <script type="text/javascript">
@@ -123,12 +133,14 @@
     </style>
 </head>
 <body>
+<input type="button" value="閉じる(window.close())" onclick="window.close()"><br>
+<input type="button" value="閉じる(window.open('about:blank','_self').close();)" onclick="window.open('about:blank','_self').close();">
+<hr>
+<a href="./index.html" target="_blank">target=_blank でこのページを開く</a>
+<hr>
 <p>Limit：<span id="limit_value"></span></p>
 <p>Left：<span id="left_value"></span></p>
 <p id="limit_message" style="display: none">Time over!!</p>
-<hr>
-<input type="button" value="閉じる(window.close())" onclick="window.close()"><br>
-<input type="button" value="閉じる(window.open('about:blank','_self').close();)" onclick="window.open('about:blank','_self').close();">
 <hr>
 <p>History<br><span id="history_value"></span></p>
 </body>

@@ -2,6 +2,7 @@
 let limit, left = 0;
 let timers = [];
 self.addEventListener("message", (e) => {
+    console.log("Receive message on Web Worker");
     const param = e.data;  // これでメインスレッドからの情報を受け取れる
     console.log(param);
     switch (param.proc) {
@@ -20,13 +21,6 @@ self.addEventListener("message", (e) => {
             }
             break;
     }
-    //----------------------------------
-    // このあたりにWorkerにさせたい処理を書く
-    // (途中経過のメッセージを送信するのもあり)
-    //----------------------------------
-
-    // メインスレッドへメッセージを送信
-    // self.postMessage("Nice to meet you");
 });
 
 self.countdown = () => {
