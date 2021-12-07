@@ -52,10 +52,6 @@
                 if (param <= 0) {
                     const limit_message = document.getElementById('limit_message');
                     limit_message.style.display = "block";
-                    if (confirm("閉じますか？")) {
-                        // window.close();
-                        window.open('about:blank','_self').close();
-                    }
                 }
             });
 
@@ -118,9 +114,9 @@
             // Page Visibility の変更を扱う
             document.addEventListener(visibilityChange, handleVisibilityChange, false);
         }
-        
+
     </script>
-    <style type="text/css">
+    <style>
         #limit_message {
             color: red;
         }
@@ -130,6 +126,9 @@
 <p>Limit：<span id="limit_value"></span></p>
 <p>Left：<span id="left_value"></span></p>
 <p id="limit_message" style="display: none">Time over!!</p>
+<hr>
+<input type="button" value="閉じる(window.close())" onclick="window.close()"><br>
+<input type="button" value="閉じる(window.open('about:blank','_self').close();)" onclick="window.open('about:blank','_self').close();">
 <hr>
 <p>History<br><span id="history_value"></span></p>
 </body>
