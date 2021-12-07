@@ -1,21 +1,22 @@
 // メインスレッドからのメッセージを受信
 let limit, left = 0;
-let timer;
+let timers = [];
 self.addEventListener("message", (e) => {
     const param = e.data;  // これでメインスレッドからの情報を受け取れる
     console.log(param);
     switch (param.proc) {
         case "start":
             left = limit = param.limit;
-            timer = setInterval(self.countdown, 1000);
+            timers.push(setInterval(self.countdown, 1000));
             break;
         case "pause":
-            clearInterval(timer);
-            timer = null;
+            for (const ti of timers) {
+                clearInterval(ti);
+            }
             break;
         case "resume":
             if (left > 0) {
-                timer = setInterval(self.countdown, 1000);
+                timers.push(setInterval(self.countdown, 1000));
             }
             break;
     }
@@ -32,8 +33,9 @@ self.countdown = () => {
     left -= 1000;
     console.log("left=" + left);
     if (left <= 0) {
-        clearInterval(timer);
-        timer = null;
+        for (const ti of timers) {
+            clearInterval(ti);
+        }
     }
     self.postMessage(left);
 }
