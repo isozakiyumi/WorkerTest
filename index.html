@@ -59,6 +59,27 @@
                     document.getElementById('limit_message').style.display = "block";
                 }
             });
+
+            window.addEventListener("beforeunload", () => {
+                console.log("beforeunload");
+                return "onbeforeunload";
+            })
+            window.addEventListener("unload", () => {
+                console.log("unload");
+            })
+
+            window.addEventListener("pagehide", () => {
+                console.log("pagehide");
+            })
+
+            const perfEntries = performance.getEntriesByType("navigation");
+
+            perfEntries.forEach(function(pe){
+                /** 読み込みタイプを取得 */
+                const type = pe.type;
+                console.log(pe)
+                history_value.innerHTML = "performance.getEntriesByType + " + type + "<br>";
+            });
         });
 
         // service worker
@@ -154,12 +175,14 @@
 
         function pause() {
             myWorker.postMessage({proc: "pause"});
+            console.log("pause");
             history_value.innerHTML += "pause left_time: " + left + "<br>";
         }
 
         function resume() {
             const left = localStorage.getItem("left_time");
             myWorker.postMessage({proc: "resume", limit: limit, left: left});
+            console.log("resume");
             history_value.innerHTML += "resume left_time: " + left + "<br>";
             if (left <= 0) {
                 document.getElementById('limit_message').style.display = "block";
