@@ -63,19 +63,19 @@
             window.addEventListener("beforeunload", () => {
                 console.log("beforeunload");
                 const now = new Date();
-                document.cookie = 'webtest beforeunload=' + now.toLocaleString('ja-JP');
+                localStorage.setItem('webtest beforeunload', now.toLocaleString('ja-JP'));
                 return "onbeforeunload";
             })
             window.addEventListener("unload", () => {
                 console.log("unload");
                 const now = new Date();
-                document.cookie = 'webtest unload=' + now.toLocaleString('ja-JP');
+                localStorage.setItem('webtest unload', now.toLocaleString('ja-JP'));
             })
 
             window.addEventListener("pagehide", () => {
                 console.log("pagehide");
                 const now = new Date();
-                document.cookie = 'webtest pagehide=' + now.toLocaleString('ja-JP');
+                localStorage.setItem('webtest pagehide', now.toLocaleString('ja-JP'));
             })
 
             const perfEntries = performance.getEntriesByType("navigation");
