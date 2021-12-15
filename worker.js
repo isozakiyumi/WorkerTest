@@ -3,6 +3,8 @@ let limit, left = 0;
 let timers = [];
 self.addEventListener("message", (e) => {
     console.log("Receive message on Web Worker");
+    console.log("performance.getEntries()");
+    console.log(performance.getEntries());
     const param = e.data;  // これでメインスレッドからの情報を受け取れる
     console.log(param);
     switch (param.proc) {

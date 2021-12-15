@@ -24,6 +24,8 @@
 
         // web worker
         window.addEventListener("load", async () => {
+            const now = new Date();
+            localStorage.setItem('webtest load', now.toLocaleString('ja-JP'));
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
             const left_value = document.getElementById('left_value');
@@ -78,6 +80,7 @@
                 localStorage.setItem('webtest pagehide', now.toLocaleString('ja-JP'));
             })
 
+            // iphone/ipad ダメ。
             const perfEntries = performance.getEntriesByType("navigation");
             console.log(perfEntries);
             perfEntries.forEach(function(pe){
