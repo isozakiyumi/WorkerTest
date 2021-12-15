@@ -22,10 +22,23 @@
         let myWorker;
         let history_value;
 
+        function getNow() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = ('0' + (now.getMonth() + 1)).slice(-2);
+            const date = ('0' + now.getDate()).slice(-2);
+            const hour = ('0' + now.getHours()).slice(-2);
+            const minute = ('0' + now.getMinutes()).slice(-2);
+            const sec =('0' + now.getSeconds()).slice(-2);
+            const millsec =('00' + now.getMilliseconds()).slice(-3);
+            return [year, "/", month, "/", date, " ", hour, ":", minute, ":", sec, ".", millsec].join("");
+        }
+
         // web worker
         window.addEventListener("load", async () => {
-            const now = new Date();
-            localStorage.setItem('webtest load', now.toLocaleString('ja-JP'));
+            const now = getNow();
+            localStorage.setItem(now, "load");
+            console.log('load', now);
             const limit_value = document.getElementById('limit_value');
             limit_value.innerText = limit + "";
             const left_value = document.getElementById('left_value');
@@ -63,21 +76,21 @@
             });
 
             window.addEventListener("beforeunload", () => {
-                console.log("beforeunload");
-                const now = new Date();
-                localStorage.setItem('webtest beforeunload', now.toLocaleString('ja-JP'));
+                const now = getNow();
+                console.log("beforeunload", now);
+                localStorage.setItem(now, "beforeunload");
                 return "onbeforeunload";
             })
             window.addEventListener("unload", () => {
-                console.log("unload");
-                const now = new Date();
-                localStorage.setItem('webtest unload', now.toLocaleString('ja-JP'));
+                const now = getNow();
+                console.log("unload", now);
+                localStorage.setItem(now, "unload");
             })
 
             window.addEventListener("pagehide", () => {
-                console.log("pagehide");
-                const now = new Date();
-                localStorage.setItem('webtest pagehide', now.toLocaleString('ja-JP'));
+                const now = getNow();
+                console.log("pagehide", now);
+                localStorage.setItem(now, "pagehide");
             })
 
             // iphone/ipad ダメ。
@@ -94,10 +107,9 @@
         var eventName = isOnIOS ? "pagehide" : "beforeunload";
 
         window.addEventListener(eventName, function(event) {
-            const now = new Date();
             localStorage.setItem('test isOnIOS', isOnIOS);
             localStorage.setItem('test eventName', eventName);
-            localStorage.setItem('test event', now.toLocaleString('ja-JP'));
+            localStorage.setItem('test event', getNow());
         });
 
         // service worker
@@ -175,8 +187,7 @@
         // ページが表示されたとき、再生する。
         function handleVisibilityChange() {
             history_value.innerHTML += "document.visibilityState " + document.visibilityState + "<br>";
-            var now = new Date();
-            localStorage.setItem("visibilityState-" + now.toLocaleString('ja-JP'), document.visibilityState);
+            localStorage.setItem(getNow(), "visibilityState-" + document.visibilityState);
             console.log( document.visibilityState );
             if (document[hidden]) {
                 pause();
